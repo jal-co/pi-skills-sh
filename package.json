@@ -21,6 +21,7 @@
     "@sinclair/typebox": "*"
   },
   "pi": {
-    "extensions": ["./extensions"]
+    "extensions": ["./extensions"],
+    "video": "https://raw.githubusercontent.com/justinlevinedotme/pi-skills-sh/main/demo.mp4"
   }
 }
