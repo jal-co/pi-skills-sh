@@ -1,6 +1,6 @@
 {
   "name": "pi-skills-sh",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "Browse, install & manage skills.sh skills from inside pi",
   "keywords": [
     "pi-package",
