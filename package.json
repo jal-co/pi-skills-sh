@@ -9,6 +9,11 @@
     "type": "git",
     "url": "https://github.com/justinlevinedotme/pi-skills-sh.git"
   },
+  "files": [
+    "extensions/",
+    "README.md",
+    "LICENSE"
+  ],
   "peerDependencies": {
     "@mariozechner/pi-coding-agent": "*",
     "@mariozechner/pi-ai": "*",
