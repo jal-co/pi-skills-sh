@@ -8,11 +8,11 @@
     "skills.sh",
     "agent-skills"
   ],
-  "author": "justinlevinedotme",
+  "author": "jal-co",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/justinlevinedotme/pi-skills-sh.git"
+    "url": "https://github.com/jal-co/pi-skills-sh.git"
   },
   "files": [
     "extensions/",
@@ -29,6 +29,6 @@
     "extensions": [
       "./extensions"
     ],
-    "video": "https://raw.githubusercontent.com/justinlevinedotme/pi-skills-sh/main/demo.mp4"
+    "video": "https://raw.githubusercontent.com/jal-co/pi-skills-sh/main/demo.mp4"
   }
 }
