@@ -924,6 +924,7 @@ async function installSkillFlow(
 	const isGlobal = scope === "global";
 	const flagArgs = ["-a", "pi", "-y"];
 	if (isGlobal) flagArgs.push("-g");
+	else flagArgs.push("--copy");
 
 	// If source contains @, it's owner/repo@skill — install directly
 	// Otherwise it's owner/repo — install all
