@@ -39,7 +39,17 @@ async function runSkills(
 	args: string[],
 	signal?: AbortSignal,
 ): Promise<{ stdout: string; stderr: string; code: number }> {
-	const result = await pi.exec("npx", ["skills", ...args], {
+	// On Windows "npx" is a .cmd shim. pi.exec spawns with shell disabled, and
+	// Node refuses to execute .cmd/.bat shims that way (ENOENT/EINVAL, see the
+	// CVE-2024-27980 fix), so route npx through cmd.exe, which is a real .exe
+	// and resolves the shim from PATH. No changes on POSIX.
+	const isWindows = process.platform === "win32";
+	const command = isWindows ? "cmd" : "npx";
+	const commandArgs = isWindows
+		? ["/c", "npx", "skills", ...args]
+		: ["skills", ...args];
+
+	const result = await pi.exec(command, commandArgs, {
 		signal,
 		timeout: 60_000,
 		env: { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0" },
@@ -113,24 +123,32 @@ function parseRepoSkills(output: string): RepoSkill[] {
 
 	let currentName: string | null = null;
 	for (const line of lines) {
-		const trimmed = line.trim();
-		if (
-			trimmed &&
-			!trimmed.startsWith("─") &&
-			!trimmed.startsWith("│") &&
-			!trimmed.startsWith("└") &&
-			!trimmed.startsWith("◇") &&
-			!trimmed.startsWith("◆") &&
-			!trimmed.startsWith("skills") &&
-			!trimmed.startsWith("Tip:") &&
-			!trimmed.startsWith("Source:") &&
-			!trimmed.startsWith("Use --") &&
-			!trimmed.startsWith("Found") &&
-			!trimmed.startsWith("Repository") &&
-			!trimmed.startsWith("Available") &&
-			!trimmed.startsWith("Cloning") &&
-			!trimmed.includes("███")
-		) {
+		// skills.sh >= 1.7 prints the list inside a box whose border characters
+		// (│, ─, corners, ...) prefix the indented skill names and descriptions.
+		// Strip the leading border run first so the filters below see the text.
+		const trimmed = line.trim().replace(/^[\u250C\u2510\u2514\u2518\u2502\u251C\u2524\u252C\u2534\u253C\u2500\u2501\u2503]+/, "").trim();
+
+		// Lines left empty (e.g. standalone "│" separators in the box) must not
+		// break the pending name/description pairing.
+		if (!trimmed) continue;
+
+		const isDecorative =
+			trimmed.startsWith("─") ||
+			trimmed.startsWith("│") ||
+			trimmed.startsWith("└") ||
+			trimmed.startsWith("◇") ||
+			trimmed.startsWith("◆") ||
+			trimmed.startsWith("skills") ||
+			trimmed.startsWith("Tip:") ||
+			trimmed.startsWith("Source:") ||
+			trimmed.startsWith("Use --") ||
+			trimmed.startsWith("Found") ||
+			trimmed.startsWith("Repository") ||
+			trimmed.startsWith("Available") ||
+			trimmed.startsWith("Cloning") ||
+			trimmed.includes("███");
+
+		if (!isDecorative) {
 			if (currentName === null) {
 				if (trimmed.length < 80 && !trimmed.includes("  ")) {
 					currentName = trimmed;
